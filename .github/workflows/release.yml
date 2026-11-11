@@ -1,0 +1,71 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch: # dry run: builds all targets, uploads artifacts, publishes nothing
+permissions:
+  contents: read
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,    target: x86_64-unknown-linux-gnu,  ext: tar.gz }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu, ext: tar.gz }
+          - { os: macos-latest,     target: x86_64-apple-darwin,       ext: tar.gz }
+          - { os: macos-latest,     target: aarch64-apple-darwin,      ext: tar.gz }
+          - { os: windows-latest,   target: x86_64-pc-windows-msvc,    ext: zip }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: 1.91.0
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: ${{ matrix.target }}
+      - run: cargo build --release --locked -p gauge-cli --target ${{ matrix.target }}
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then tag="dry-run"; fi
+          name="soroban-gauge-$tag-${{ matrix.target }}"
+          mkdir -p dist stage
+          bin=soroban-gauge; if [ "${{ matrix.ext }}" = "zip" ]; then bin=soroban-gauge.exe; fi
+          cp "target/${{ matrix.target }}/release/$bin" stage/
+          cp LICENSE-MIT LICENSE-APACHE README.md stage/
+          if [ "${{ matrix.ext }}" = "zip" ]; then (cd stage && 7z a -tzip "../dist/$name.zip" . >/dev/null); else tar -czf "dist/$name.tar.gz" -C stage .; fi
+          ls -la dist
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+  publish:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+      - name: Checksums and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum soroban-gauge-* > checksums.txt
+          cat checksums.txt
+          test "$(wc -l < checksums.txt)" -eq 5
+          gh release create "$GITHUB_REF_NAME" soroban-gauge-* checksums.txt --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes

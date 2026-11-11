@@ -1,0 +1,15 @@
+[[scenario]]
+name = "counter_basic"
+description = "increment twice, then read"
+contracts = ["counter"]
+
+  [[scenario.step]]
+  id = "increment"
+  contract = "counter"
+  function = "increment"
+  repeat = 2              # recorded as increment#1 and increment#2
+
+  [[scenario.step]]
+  id = "get"
+  contract = "counter"
+  function = "get"

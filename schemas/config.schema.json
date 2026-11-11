@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/soroban-gauge/config.schema.json",
+  "title": "soroban-gauge.toml (as JSON)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "baseline": { "type": "string" },
+        "scenarios": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "contract": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "wasm"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "wasm": { "type": "string" },
+          "constructor": { "type": "object" }
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(instructions|mem_bytes|fee_stroops|read_entries|write_entries|write_bytes|disk_read_bytes|events_bytes)_pct$": { "type": "number", "minimum": 0 },
+        "^(instructions|mem_bytes|fee_stroops|read_entries|write_entries|write_bytes|disk_read_bytes|events_bytes)_abs$": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "wasm_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_size_bytes": { "type": "integer", "minimum": 0 },
+        "warn_size_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_rows": { "type": "integer", "minimum": 1 },
+        "sort": { "enum": ["regression", "name", "cost"] }
+      }
+    }
+  }
+}

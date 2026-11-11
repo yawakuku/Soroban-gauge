@@ -1,0 +1,8 @@
+[project]
+baseline = ".soroban-gauge/baseline.json"
+scenarios = ["scenarios/*.toml"]
+
+[[contract]]
+name = "token"
+wasm = "../../tests/fixtures/token.wasm"
+constructor = { admin = "@admin" }

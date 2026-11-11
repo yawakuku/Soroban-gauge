@@ -1,0 +1,180 @@
+name: soroban-gauge
+description: Measure Soroban contract resource use on a local host VM and fail CI on regressions.
+author: soroban-gauge contributors
+branding:
+  icon: activity
+  color: blue
+
+inputs:
+  version:
+    description: Release tag to install (for example v0.1.0). Pin a version; "latest" resolves at run time.
+    default: latest
+  config:
+    description: Path to soroban-gauge.toml (relative to working-directory).
+    default: soroban-gauge.toml
+  fail-on:
+    description: regression | any-change | never
+    default: regression
+  comment:
+    description: Post or update one PR comment (identified by a hidden marker).
+    default: "true"
+  github-token:
+    description: Token used to post the PR comment and, for "latest", to look up the release.
+    default: ${{ github.token }}
+  working-directory:
+    description: Directory to run in.
+    default: .
+  allow-version-mismatch:
+    description: Compare even when baseline and current host versions differ.
+    default: "false"
+  binary-path:
+    description: Use this soroban-gauge binary instead of downloading a release (used by this repository's own CI).
+    default: ""
+
+outputs:
+  verdict:
+    description: pass, fail (regression or size limit) or error (config, scenario or I/O problem).
+    value: ${{ steps.run.outputs.verdict }}
+  regressions:
+    description: Number of entries over their thresholds (empty when the run errored before comparing).
+    value: ${{ steps.run.outputs.regressions }}
+  report-path:
+    description: Path of the JSON run report.
+    value: ${{ steps.run.outputs.report-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve release
+      id: resolve
+      if: inputs.binary-path == ''
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        TOKEN: ${{ inputs.github-token }}
+        REPO: ${{ github.action_repository }}
+      run: |
+        set -euo pipefail
+        tag="$VERSION"
+        if [ "$tag" = "latest" ]; then
+          tag=$(curl -fsSL -H "Authorization: Bearer $TOKEN" "https://api.github.com/repos/$REPO/releases/latest" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n1)
+          if [ -z "$tag" ]; then echo "::error::could not resolve the latest release of $REPO"; exit 1; fi
+        fi
+        case "$RUNNER_OS-$RUNNER_ARCH" in
+          Linux-X64)   triple=x86_64-unknown-linux-gnu; ext=tar.gz ;;
+          Linux-ARM64) triple=aarch64-unknown-linux-gnu; ext=tar.gz ;;
+          macOS-X64)   triple=x86_64-apple-darwin; ext=tar.gz ;;
+          macOS-ARM64) triple=aarch64-apple-darwin; ext=tar.gz ;;
+          Windows-X64) triple=x86_64-pc-windows-msvc; ext=zip ;;
+          *) echo "::error::unsupported runner $RUNNER_OS/$RUNNER_ARCH"; exit 1 ;;
+        esac
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        echo "triple=$triple" >> "$GITHUB_OUTPUT"
+        echo "ext=$ext" >> "$GITHUB_OUTPUT"
+
+    - name: Cache binary
+      id: cache
+      if: inputs.binary-path == ''
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ runner.temp }}/soroban-gauge-bin
+        key: soroban-gauge-${{ steps.resolve.outputs.tag }}-${{ steps.resolve.outputs.triple }}
+
+    - name: Download and verify
+      id: install
+      if: inputs.binary-path == '' && steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        TAG: ${{ steps.resolve.outputs.tag }}
+        TRIPLE: ${{ steps.resolve.outputs.triple }}
+        EXT: ${{ steps.resolve.outputs.ext }}
+        REPO: ${{ github.action_repository }}
+      run: |
+        set -euo pipefail
+        archive="soroban-gauge-$TAG-$TRIPLE.$EXT"
+        base="https://github.com/$REPO/releases/download/$TAG"
+        tmp=$(mktemp -d)
+        curl -fsSL -o "$tmp/$archive" "$base/$archive"
+        curl -fsSL -o "$tmp/checksums.txt" "$base/checksums.txt"
+        expected=$(awk -v f="$archive" '$2 == f || $2 == "*"f {print $1}' "$tmp/checksums.txt")
+        if [ -z "$expected" ]; then echo "::error::$archive is not listed in checksums.txt"; exit 1; fi
+        if command -v sha256sum >/dev/null 2>&1; then actual=$(sha256sum "$tmp/$archive" | awk '{print $1}'); else actual=$(shasum -a 256 "$tmp/$archive" | awk '{print $1}'); fi
+        if [ "$expected" != "$actual" ]; then echo "::error::checksum mismatch for $archive (expected $expected, got $actual)"; exit 1; fi
+        mkdir -p "$RUNNER_TEMP/soroban-gauge-bin"
+        if [ "$EXT" = "zip" ]; then unzip -q -o "$tmp/$archive" -d "$RUNNER_TEMP/soroban-gauge-bin"; else tar -xzf "$tmp/$archive" -C "$RUNNER_TEMP/soroban-gauge-bin"; fi
+
+    - name: Run soroban-gauge check
+      id: run
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BINARY_PATH: ${{ inputs.binary-path }}
+        CONFIG: ${{ inputs.config }}
+        FAIL_ON: ${{ inputs.fail-on }}
+        ALLOW_MISMATCH: ${{ inputs.allow-version-mismatch }}
+      run: |
+        set -uo pipefail
+        if [ -n "$BINARY_PATH" ]; then bin=$(cd "$(dirname "$BINARY_PATH")" && pwd)/$(basename "$BINARY_PATH"); else bin="$RUNNER_TEMP/soroban-gauge-bin/soroban-gauge"; fi
+        out="$RUNNER_TEMP/soroban-gauge-out"; mkdir -p "$out"
+        extra=()
+        if [ "$ALLOW_MISMATCH" = "true" ]; then extra+=(--allow-version-mismatch); fi
+        "$bin" --config "$CONFIG" check --format markdown --fail-on "$FAIL_ON" --diff-out "$out/diff.json" ${extra[@]+"${extra[@]}"} > "$out/comment.md"
+        code=$?
+        if [ -s "$out/comment.md" ]; then cat "$out/comment.md" >> "$GITHUB_STEP_SUMMARY"; fi
+        case $code in 0) verdict=pass ;; 1) verdict=fail ;; *) verdict=error ;; esac
+        regressions=""
+        if [ -s "$out/diff.json" ]; then regressions=$(sed -n 's/^  "regressions": \([0-9][0-9]*\),*$/\1/p' "$out/diff.json" | head -n1); fi
+        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+        echo "regressions=$regressions" >> "$GITHUB_OUTPUT"
+        echo "report-path=$PWD/target/soroban-gauge/report.json" >> "$GITHUB_OUTPUT"
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        echo "comment-path=$out/comment.md" >> "$GITHUB_OUTPUT"
+
+    - name: Upsert PR comment
+      if: always() && inputs.comment == 'true' && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && steps.run.outputs.verdict != 'error'
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        COMMENT_PATH: ${{ steps.run.outputs.comment-path }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const marker = '<!-- soroban-gauge:v1 -->';
+          const pr = context.payload.pull_request;
+          if (pr.head.repo && pr.head.repo.full_name !== pr.base.repo.full_name) {
+            core.notice('Pull request comes from a fork: the token is read-only, so no comment is posted. The results are in the job summary.');
+            return;
+          }
+          let body;
+          try { body = fs.readFileSync(process.env.COMMENT_PATH, 'utf8'); } catch (e) { core.notice('No report to post.'); return; }
+          if (!body.includes(marker)) { core.notice('Report has no marker; not posting.'); return; }
+          const { owner, repo } = context.repo;
+          const issue_number = pr.number;
+          try {
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+          } catch (e) {
+            core.notice('Could not post the PR comment (' + e.message + '). Needs pull-requests: write; results are in the job summary.');
+          }
+
+    - name: Upload run report
+      if: always()
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: soroban-gauge-report
+        path: ${{ inputs.working-directory }}/target/soroban-gauge/report.json
+        if-no-files-found: ignore
+
+    - name: Finish with the CLI exit code
+      if: always() && steps.run.outputs.exit-code != '0'
+      shell: bash
+      env:
+        CODE: ${{ steps.run.outputs.exit-code }}
+      run: |
+        echo "soroban-gauge exited with code $CODE"
+        exit "${CODE:-5}"

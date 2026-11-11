@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/soroban-gauge/baseline.schema.json",
+  "title": "soroban-gauge baseline / run report",
+  "type": "object",
+  "required": ["schema_version", "environment", "contracts", "entries"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool_version", "soroban_sdk_version", "soroban_env_host_version", "protocol_version"],
+      "properties": {
+        "tool_version": { "type": "string" },
+        "soroban_sdk_version": { "type": "string" },
+        "soroban_env_host_version": { "type": "string" },
+        "protocol_version": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["wasm_sha256", "wasm_size_bytes"],
+        "properties": {
+          "wasm_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "wasm_size_bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "scenario", "step", "contract", "function", "metrics"],
+        "properties": {
+          "key": { "type": "string", "minLength": 3 },
+          "scenario": { "type": "string" },
+          "step": { "type": "string" },
+          "contract": { "type": "string" },
+          "function": { "type": "string" },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "instructions", "mem_bytes", "disk_read_entries", "memory_read_entries",
+              "write_entries", "disk_read_bytes", "write_bytes", "events_bytes", "fee_stroops"
+            ],
+            "properties": {
+              "instructions": { "type": "integer", "minimum": 0 },
+              "mem_bytes": { "type": "integer", "minimum": 0 },
+              "disk_read_entries": { "type": "integer", "minimum": 0 },
+              "memory_read_entries": { "type": "integer", "minimum": 0 },
+              "write_entries": { "type": "integer", "minimum": 0 },
+              "disk_read_bytes": { "type": "integer", "minimum": 0 },
+              "write_bytes": { "type": "integer", "minimum": 0 },
+              "events_bytes": { "type": "integer", "minimum": 0 },
+              "fee_stroops": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "fee_components": {
+            "type": "object",
+            "additionalProperties": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "wasm": {
+      "description": "Static Wasm reports; present in run reports only, never in baselines.",
+      "type": "object"
+    }
+  }
+}

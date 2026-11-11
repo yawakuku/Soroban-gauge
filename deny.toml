@@ -1,0 +1,25 @@
+[graph]
+all-features = true
+
+[advisories]
+yanked = "deny"
+# Both advisories arrive transitively through the pinned soroban-sdk / soroban-env-host
+# and cannot be fixed from this repository. soroban-gauge never signs, derives keys or
+# handles secrets (see SECURITY.md), so a timing side channel in constant-time bignum
+# code is not reachable in its use. Re-check on every soroban-sdk bump.
+ignore = [
+    { id = "RUSTSEC-2026-0387", reason = "crypto-bigint timing variability; transitive via soroban-env-host; no secrets are processed" },
+    { id = "RUSTSEC-2024-0436", reason = "paste is unmaintained; transitive via the Soroban host dependency tree; build-time macro only" },
+]
+
+[licenses]
+allow = ["MIT", "Apache-2.0", "Apache-2.0 WITH LLVM-exception", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Unicode-3.0", "Zlib", "CC0-1.0"]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

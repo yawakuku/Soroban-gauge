@@ -1,0 +1,39 @@
+[package]
+name = "gauge-cli"
+description = "soroban-gauge command-line interface"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "soroban-gauge"
+path = "src/main.rs"
+
+[features]
+# `calibrate` is milestone 2; the feature exists so the command surface is stable.
+rpc = []
+
+[dependencies]
+gauge-core = { workspace = true, features = ["runner"] }
+gauge-wasm.workspace = true
+gauge-report.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+assert_cmd.workspace = true
+predicates.workspace = true
+insta.workspace = true
+tempfile.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+jsonschema = { version = "0.30", default-features = false }
+
+[lints]
+workspace = true

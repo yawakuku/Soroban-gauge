@@ -1,0 +1,9 @@
+# Paths are relative to this file. The Wasm is the committed fixture so the example's
+# baseline is reproducible; in your own project point `wasm` at your build output.
+[project]
+baseline = ".soroban-gauge/baseline.json"
+scenarios = ["scenarios/*.toml"]
+
+[[contract]]
+name = "counter"
+wasm = "../../tests/fixtures/counter.wasm"

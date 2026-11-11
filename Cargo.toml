@@ -1,0 +1,64 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/gauge-core",
+    "crates/gauge-wasm",
+    "crates/gauge-report",
+    "crates/gauge-rpc",
+    "crates/gauge-cli",
+]
+
+exclude = ["examples/counter", "examples/counter-regressed", "examples/token"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+# MSRV: soroban-sdk 29.x declares rust-version 1.91.0 on the crates.io index.
+# Re-verify when the SDK is pinned in step 4.
+rust-version = "1.91.0"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/OWNER/soroban-gauge"
+authors = ["soroban-gauge contributors"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+
+[workspace.dependencies]
+# Internal crates
+gauge-core = { path = "crates/gauge-core", version = "0.1.0", default-features = false }
+gauge-wasm = { path = "crates/gauge-wasm", version = "0.1.0" }
+gauge-report = { path = "crates/gauge-report", version = "0.1.0" }
+gauge-rpc = { path = "crates/gauge-rpc", version = "0.1.0" }
+# Pinned: the host VM version decides what costs mean (see docs/DEPENDENCIES.md).
+soroban-sdk = { version = "=29.0.1", features = ["testutils"] }
+stellar-xdr = { version = "=28.0.0", default-features = false, features = ["std", "alloc", "base64"] }
+wasmparser = "=0.263.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+thiserror = "2"
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+glob = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std"] }
+# dev
+assert_cmd = "2"
+predicates = "3"
+insta = "1"
+tempfile = "3"
+proptest = "1"
+
+[profile.dev]
+debug = false
+incremental = false
+
+[profile.test]
+debug = false
+incremental = false

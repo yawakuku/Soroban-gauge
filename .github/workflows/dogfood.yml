@@ -1,0 +1,56 @@
+name: dogfood
+on:
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: 1.91.0
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo build --release -p gauge-cli
+      - name: counter example (expected to pass; owns the PR comment)
+        uses: ./
+        with:
+          binary-path: target/release/soroban-gauge
+          config: examples/counter/soroban-gauge.toml
+      - name: token example (expected to pass; no comment, one comment per PR)
+        uses: ./
+        with:
+          binary-path: target/release/soroban-gauge
+          config: examples/token/soroban-gauge.toml
+          comment: "false"
+  negative:
+    # Proves the gate fails: counter-regressed is checked against the counter baseline.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: 1.91.0
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo build --release -p gauge-cli
+      - name: regressed example (expected to fail)
+        id: neg
+        uses: ./
+        continue-on-error: true
+        with:
+          binary-path: target/release/soroban-gauge
+          config: examples/counter-regressed/soroban-gauge.toml
+          comment: "false"
+      - name: Assert the action failed
+        run: test "${{ steps.neg.outcome }}" = "failure"
+      - name: Assert the CLI exit code is exactly 1
+        run: |
+          set +e
+          target/release/soroban-gauge --config examples/counter-regressed/soroban-gauge.toml check > /dev/null
+          code=$?
+          echo "exit code: $code"
+          test "$code" -eq 1

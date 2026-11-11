@@ -1,0 +1,36 @@
+---
+source: crates/gauge-cli/tests/cli.rs
+expression: "String::from_utf8(out.stdout).unwrap()"
+---
+size_bytes: 4048
+sha256:     19f8c0a013e254a126b9fcb8b2d02efed4c36af5ac9e9fb8e6f990b8d4ce0575
+size_limit: Ok
+protocol:   29 (pre-release 0)
+counts:     6 functions, 0 data bytes, 0 tables, 1 memories
+
+metadata:
+  rssdk_spec_shaking = 2
+  rssdkver = 29.0.1#e1671a0cb58d4b8c0bb8de115caf080ca01676e8
+  rsver = 1.99.1
+
+spec functions:
+  get() -> u32
+  increment() -> u32
+
+host imports (3):
+  l.0
+  l.1
+  l._
+
+section sizes (largest first):
+  custom:contractspecv0            3423
+  code                              303
+  custom:contractmetav0             147
+  export                             32
+  custom:contractenvmetav0           30
+  type                               25
+  import                             19
+  global                             17
+  data                                9
+  function                            7
+  memory                              3

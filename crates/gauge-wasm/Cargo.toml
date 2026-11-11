@@ -1,0 +1,23 @@
+[package]
+name = "gauge-wasm"
+description = "soroban-gauge: static inspection of Soroban Wasm contracts (never executes the Wasm)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+wasmparser.workspace = true
+stellar-xdr.workspace = true
+serde.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

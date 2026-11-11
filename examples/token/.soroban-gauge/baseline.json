@@ -1,0 +1,129 @@
+{
+  "contracts": {
+    "token": {
+      "wasm_sha256": "a015f12993db7057b30cfcd2fad97a1ba4b628608c1446c357f56e067448fac8",
+      "wasm_size_bytes": 6253
+    }
+  },
+  "entries": [
+    {
+      "contract": "token",
+      "fee_components": {
+        "contract_events": 0,
+        "disk_read_bytes": 0,
+        "disk_read_entries": 4689,
+        "instructions": 247,
+        "persistent_entry_rent": 10284,
+        "temporary_entry_rent": 2315968,
+        "write_bytes": 233,
+        "write_entries": 5000
+      },
+      "function": "approve",
+      "key": "token_basic/approve",
+      "metrics": {
+        "disk_read_bytes": 0,
+        "disk_read_entries": 1,
+        "events_bytes": 0,
+        "fee_stroops": 2336421,
+        "instructions": 352125,
+        "mem_bytes": 1219668,
+        "memory_read_entries": 4,
+        "write_bytes": 272,
+        "write_entries": 2
+      },
+      "scenario": "token_basic",
+      "step": "approve"
+    },
+    {
+      "contract": "token",
+      "fee_components": {
+        "contract_events": 0,
+        "disk_read_bytes": 0,
+        "disk_read_entries": 0,
+        "instructions": 207,
+        "persistent_entry_rent": 0,
+        "temporary_entry_rent": 0,
+        "write_bytes": 0,
+        "write_entries": 0
+      },
+      "function": "balance",
+      "key": "token_basic/balance",
+      "metrics": {
+        "disk_read_bytes": 0,
+        "disk_read_entries": 0,
+        "events_bytes": 0,
+        "fee_stroops": 207,
+        "instructions": 294374,
+        "mem_bytes": 1205950,
+        "memory_read_entries": 3,
+        "write_bytes": 0,
+        "write_entries": 0
+      },
+      "scenario": "token_basic",
+      "step": "balance"
+    },
+    {
+      "contract": "token",
+      "fee_components": {
+        "contract_events": 0,
+        "disk_read_bytes": 0,
+        "disk_read_entries": 4689,
+        "instructions": 260,
+        "persistent_entry_rent": 8388,
+        "temporary_entry_rent": 2315968,
+        "write_bytes": 192,
+        "write_entries": 5000
+      },
+      "function": "mint",
+      "key": "token_basic/mint",
+      "metrics": {
+        "disk_read_bytes": 0,
+        "disk_read_entries": 1,
+        "events_bytes": 0,
+        "fee_stroops": 2334497,
+        "instructions": 370808,
+        "mem_bytes": 1217286,
+        "memory_read_entries": 4,
+        "write_bytes": 224,
+        "write_entries": 2
+      },
+      "scenario": "token_basic",
+      "step": "mint"
+    },
+    {
+      "contract": "token",
+      "fee_components": {
+        "contract_events": 0,
+        "disk_read_bytes": 0,
+        "disk_read_entries": 6252,
+        "instructions": 287,
+        "persistent_entry_rent": 8388,
+        "temporary_entry_rent": 2315968,
+        "write_bytes": 318,
+        "write_entries": 7500
+      },
+      "function": "transfer",
+      "key": "token_basic/transfer",
+      "metrics": {
+        "disk_read_bytes": 0,
+        "disk_read_entries": 1,
+        "events_bytes": 0,
+        "fee_stroops": 2338713,
+        "instructions": 409109,
+        "mem_bytes": 1222264,
+        "memory_read_entries": 5,
+        "write_bytes": 372,
+        "write_entries": 3
+      },
+      "scenario": "token_basic",
+      "step": "transfer"
+    }
+  ],
+  "environment": {
+    "protocol_version": 29,
+    "soroban_env_host_version": "29.0.1",
+    "soroban_sdk_version": "29.0.1",
+    "tool_version": "0.1.0"
+  },
+  "schema_version": 1
+}

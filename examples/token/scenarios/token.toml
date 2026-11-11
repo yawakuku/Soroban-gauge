@@ -1,0 +1,37 @@
+[[scenario]]
+name = "token_basic"
+description = "mint, transfer, read a balance, approve"
+contracts = ["token"]
+
+  [[scenario.step]]
+  id = "mint"
+  contract = "token"
+  function = "mint"
+  args = { to = "@alice", amount = "1000000000" }
+
+  [[scenario.step]]
+  id = "transfer"
+  contract = "token"
+  function = "transfer"
+  args = { from = "@alice", to = "@bob", amount = "250" }
+
+  [[scenario.step]]
+  id = "balance"
+  contract = "token"
+  function = "balance"
+  args = { id = "@bob" }
+
+  [[scenario.step]]
+  id = "approve"
+  contract = "token"
+  function = "approve"
+  args = { from = "@alice", spender = "@bob", amount = "500" }
+
+  # Setup-style step: expected to fail, executed but not recorded.
+  [[scenario.step]]
+  id = "overdraw"
+  contract = "token"
+  function = "transfer"
+  args = { from = "@bob", to = "@alice", amount = "999999999999" }
+  expect = { error = 2 }
+  measure = false

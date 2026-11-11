@@ -1,0 +1,11 @@
+---
+source: crates/gauge-report/tests/render.rs
+expression: "render_table(&sample(), RenderOptions { max_rows: 50 })"
+---
+FAIL: 1 regression over threshold
+KEY                INSTRUCTIONS            MEMORY               FEE                 WRITES          STATUS
+counter/increment  +1,000,000 (+322.6%) ❌  +10,000 (+111.1%) ❌  +1,000 (+208.3%) ❌  +3 (+300.0%) ❌  regressed
+counter/new        +2,000 (new)            +200 (new)           +20 (new)           0               new
+counter/old        -1,000 (-100.0%)        -100 (-100.0%)       -10 (-100.0%)       0               removed
+3 of 4 entries changed.
+wasm counter: 4,048 B -> 4,142 B (+94 B)

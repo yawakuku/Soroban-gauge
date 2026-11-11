@@ -1,0 +1,9 @@
+# Same interface as examples/counter, but `increment` does extra work. This config
+# deliberately compares it against the *counter* baseline, so `check` fails.
+[project]
+baseline = "../counter/.soroban-gauge/baseline.json"
+scenarios = ["scenarios/*.toml"]
+
+[[contract]]
+name = "counter"
+wasm = "../../tests/fixtures/counter_regressed.wasm"

@@ -1,0 +1,363 @@
+---
+source: crates/gauge-report/tests/render.rs
+expression: j
+---
+{
+  "schema_version": 1,
+  "baseline_environment": {
+    "tool_version": "0.1.0",
+    "soroban_sdk_version": "29.0.1",
+    "soroban_env_host_version": "29.0.1",
+    "protocol_version": 29
+  },
+  "current_environment": {
+    "tool_version": "0.1.0",
+    "soroban_sdk_version": "29.0.1",
+    "soroban_env_host_version": "29.0.1",
+    "protocol_version": 29
+  },
+  "environment_mismatch": false,
+  "rows": [
+    {
+      "key": "counter/increment",
+      "contract": "counter",
+      "function": "increment",
+      "status": "regressed",
+      "fails": true,
+      "changed": true,
+      "metrics": [
+        {
+          "name": "instructions",
+          "baseline": 310000,
+          "current": 1310000,
+          "delta": 1000000,
+          "pct": 322.5806451612903,
+          "failed": true
+        },
+        {
+          "name": "mem_bytes",
+          "baseline": 9000,
+          "current": 19000,
+          "delta": 10000,
+          "pct": 111.11111111111111,
+          "failed": true
+        },
+        {
+          "name": "disk_read_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "memory_read_entries",
+          "baseline": 1,
+          "current": 1,
+          "delta": 0,
+          "pct": 0.0,
+          "failed": false
+        },
+        {
+          "name": "write_entries",
+          "baseline": 1,
+          "current": 4,
+          "delta": 3,
+          "pct": 300.0,
+          "failed": true
+        },
+        {
+          "name": "disk_read_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "write_bytes",
+          "baseline": 40,
+          "current": 160,
+          "delta": 120,
+          "pct": 300.0,
+          "failed": true
+        },
+        {
+          "name": "events_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "fee_stroops",
+          "baseline": 480,
+          "current": 1480,
+          "delta": 1000,
+          "pct": 208.33333333333334,
+          "failed": true
+        }
+      ]
+    },
+    {
+      "key": "counter/new",
+      "contract": "counter",
+      "function": "new",
+      "status": "new",
+      "fails": false,
+      "changed": true,
+      "metrics": [
+        {
+          "name": "instructions",
+          "baseline": 0,
+          "current": 2000,
+          "delta": 2000,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "mem_bytes",
+          "baseline": 0,
+          "current": 200,
+          "delta": 200,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "disk_read_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "memory_read_entries",
+          "baseline": 0,
+          "current": 1,
+          "delta": 1,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "write_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "disk_read_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "write_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "events_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "fee_stroops",
+          "baseline": 0,
+          "current": 20,
+          "delta": 20,
+          "pct": null,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "key": "counter/old",
+      "contract": "counter",
+      "function": "old",
+      "status": "removed",
+      "fails": false,
+      "changed": true,
+      "metrics": [
+        {
+          "name": "instructions",
+          "baseline": 1000,
+          "current": 0,
+          "delta": -1000,
+          "pct": -100.0,
+          "failed": false
+        },
+        {
+          "name": "mem_bytes",
+          "baseline": 100,
+          "current": 0,
+          "delta": -100,
+          "pct": -100.0,
+          "failed": false
+        },
+        {
+          "name": "disk_read_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "memory_read_entries",
+          "baseline": 1,
+          "current": 0,
+          "delta": -1,
+          "pct": -100.0,
+          "failed": false
+        },
+        {
+          "name": "write_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "disk_read_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "write_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "events_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "fee_stroops",
+          "baseline": 10,
+          "current": 0,
+          "delta": -10,
+          "pct": -100.0,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "key": "counter/get",
+      "contract": "counter",
+      "function": "get",
+      "status": "unchanged",
+      "fails": false,
+      "changed": false,
+      "metrics": [
+        {
+          "name": "instructions",
+          "baseline": 120000,
+          "current": 120000,
+          "delta": 0,
+          "pct": 0.0,
+          "failed": false
+        },
+        {
+          "name": "mem_bytes",
+          "baseline": 3000,
+          "current": 3000,
+          "delta": 0,
+          "pct": 0.0,
+          "failed": false
+        },
+        {
+          "name": "disk_read_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "memory_read_entries",
+          "baseline": 1,
+          "current": 1,
+          "delta": 0,
+          "pct": 0.0,
+          "failed": false
+        },
+        {
+          "name": "write_entries",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "disk_read_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "write_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "events_bytes",
+          "baseline": 0,
+          "current": 0,
+          "delta": 0,
+          "pct": null,
+          "failed": false
+        },
+        {
+          "name": "fee_stroops",
+          "baseline": 150,
+          "current": 150,
+          "delta": 0,
+          "pct": 0.0,
+          "failed": false
+        }
+      ]
+    }
+  ],
+  "regressions": 1,
+  "changed": 3,
+  "total": 4,
+  "failed": true,
+  "wasm": [
+    {
+      "contract": "counter",
+      "baseline_size_bytes": 4048,
+      "current_size_bytes": 4142,
+      "changed": true
+    }
+  ],
+  "size_findings": []
+}

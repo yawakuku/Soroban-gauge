@@ -1,0 +1,34 @@
+[package]
+name = "gauge-core"
+description = "soroban-gauge: config, scenarios, runner and baseline model"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[features]
+default = ["runner"]
+# The runner embeds the Soroban host VM (soroban-sdk testutils). Crates that only
+# need the data model (config, baseline) can disable it to stay light.
+runner = ["dep:soroban-sdk", "dep:wasmparser"]
+
+[dependencies]
+gauge-wasm.workspace = true
+wasmparser = { workspace = true, optional = true }
+soroban-sdk = { workspace = true, optional = true }
+stellar-xdr.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+glob.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
